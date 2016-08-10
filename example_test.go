@@ -5,7 +5,7 @@ import (
 	"io"
 	"strings"
 
-	"github.com/yegle/csv"
+	"github.com/tortuoise/csv"
 )
 
 func ExampleDecoder_Decode() {

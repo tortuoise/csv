@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/yegle/csv"
+	"github.com/tortuoise/csv"
 )
 
 var TestInput string
@@ -92,6 +92,41 @@ func TestDecode(t *testing.T) {
 			t.Errorf("Expect %q unmarshal to %#v, get %#v: %v", test.input, test.expect, get, err)
 		}
 	}
+}
+
+type Good struct {
+        Id int64
+        Price float64
+        Vols []int `cap:"2"`
+        Deets GoodDeets
+}
+type GoodDeets struct {
+        Stock int
+        Related []int `cap:"2"`
+        Features []string `cap:"3"`
+}
+
+func TestUnmarshalcsv(t *testing.T) {
+        tests := []struct {
+                input string
+                expect interface{}
+        }{
+                {
+                        input: `"0", "0.0", "10", "1", "12", "1002", "1003", "Boo", "Yeah", "Banjo"`,
+                        expect: Good{Id: 0, Price: 0.0, Vols: []int{10,1}, Deets: GoodDeets{ Stock: 12, Related: []int{1002, 1003}, Features: []string{"Boo","Yeah","Banjo"} }},
+                },
+                {
+                        input: `"0", "0.0", "10", "1", "12", "1002", "1003", "Boo", "Yeah", "Banjo"`,
+                        expect: Good{Id: 0, Price: 0.0, Vols: []int{10,1}, Deets: GoodDeets{ Stock: 12, Related: []int{1002, 1003}, Features: []string{"Boo","Yeah","Banjo"} }},
+                },
+        }
+        for _, test := range tests {
+                dec := csv.NewDecoder(strings.NewReader(test.input))
+                get := reflect.New(reflect.TypeOf(test.expect)).Interface()
+                if err := dec.DeepUnmarshalCSV(get); err != nil || !reflect.DeepEqual(reflect.ValueOf(get).Elem().Interface(), test.expect) {
+                        t.Errorf("Expect %q unmarshal to %3v: %v", test.input, test.expect, get, err)
+                }
+        }
 }
 
 func BenchmarkDecodeDefault(b *testing.B) {
