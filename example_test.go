@@ -3,6 +3,7 @@ package csv_test
 import (
 	"fmt"
 	"io"
+        "reflect"
 	"strings"
 
 	"github.com/tortuoise/csv"

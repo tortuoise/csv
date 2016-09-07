@@ -134,6 +134,7 @@ func (dec *Decoder) Decode(v interface{}) error {
 	return nil
 }
 
+// DeepUnmarshalCSV decodes the next line in CSV file to v
 func (dec *Decoder) DeepUnmarshalCSV(v interface{}) error {
 	var (
 		err    error
@@ -158,12 +159,12 @@ func (dec *Decoder) DeepUnmarshalCSV(v interface{}) error {
 		return fmt.Errorf("Mismatch length of record: expect %d, get %d", count, len(record))
 	}
 
-	return DeepUnmarshal(v, record)
+	return deepUnmarshal(v, record)
 
 }
 
-// DeepUnmarshal recursively unmarshals csv into provided interface which must be a pointer. It first checks whether the number of csv values equals the DeepCount of the struct
-func DeepUnmarshal(v interface{}, record []string) error {
+// deepUnmarshal unmarshals a single provided csv record into provided interface which must be a pointer. It first checks whether the number of csv values equals the DeepCount of the struct
+func deepUnmarshal(v interface{}, record []string) error {
         var (
                 err error
                 i,j int
@@ -191,15 +192,14 @@ func DeepUnmarshal(v interface{}, record []string) error {
                 if ft.Kind() == reflect.Struct {
                         c := reflect.New(ft)
                         f.Set(c.Elem())
-                        if err = DeepUnmarshal(f.Addr().Interface(), record[j:]); err != nil {
+                        if err = deepUnmarshal(f.Addr().Interface(), record[j:]); err != nil {
                                 return fmt.Errorf("Unmarshal error: %q ", err)
+                        }
+                        if cnt, err := DeepCount(f.Addr().Interface()); err != nil{
+                                return fmt.Errorf("Counting error: %q", err)
                         } else {
-                                if cnt, err := DeepCount(f.Addr().Interface()); err != nil{
-                                        return fmt.Errorf("Counting error: %q", err)
-                                } else {
-                                        j += int(cnt)
-                                        tail += fName
-                                }
+                                j += int(cnt)
+                                tail += fName
                                 continue
                         }
                 } else if ft.Kind() == reflect.Slice {
@@ -218,16 +218,15 @@ func DeepUnmarshal(v interface{}, record []string) error {
                 } else {
                         if err := SetFieldWithValue(ft, f, record[j]); err != nil {
                                 return fmt.Errorf("Field set error: %q", err)
-                        } else {
-                                tail += fName
-                                continue
                         }
+                        tail += fName
+                        continue
                 }
 	}
         return nil //fmt.Errorf("Last i,j : %d,%d",i, j)
 }
 
-// Deepcount recursively counts the number of fields in a struct using a struct field tag on slices
+// DeepCount recursively counts the number of fields in a struct using a struct field tag on slices
 func DeepCount(v interface{}) (int, error) {
         count := 0
         typ := reflect.TypeOf(v).Elem()
@@ -255,6 +254,7 @@ func DeepCount(v interface{}) (int, error) {
         return count, nil //fmt.Errorf("Returning: %q Count: %q", typ.Kind(), typ.NumField())
 }
 
+// SetFieldWithValue converts fValue to ft type and sets f's value
 func SetFieldWithValue(ft reflect.Type,  f reflect.Value, fValue string) error {
         var (
                 err error
