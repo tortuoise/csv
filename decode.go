@@ -258,6 +258,7 @@ func SetFieldWithValue(ft reflect.Type,  f reflect.Value, fValue string) error {
                 err error
                 jn int
                 st string
+                torf bool
                 fn     float64
                 in     int64
                 un     uint64
@@ -305,9 +306,27 @@ func SetFieldWithValue(ft reflect.Type,  f reflect.Value, fValue string) error {
                                 reflect.Append(f, reflect.ValueOf(int(in)))
                         case reflect.SliceOf(reflect.TypeOf(st)):
                                 reflect.Append(f, reflect.ValueOf(fValue))
+                        case reflect.SliceOf(reflect.TypeOf(in)):
+                                if in, err = strconv.ParseInt(fValue, 10, 64); err != nil {
+                                        return fmt.Errorf("failed in parsing %q: %v %q", fName, err, ft)
+                                }
+                                reflect.Append(f, reflect.ValueOf(in))
+                        case reflect.SliceOf(reflect.TypeOf(fn)):
+                                if fValue != "" {
+                                        if fn, err = strconv.ParseFloat(fValue, 64); err != nil {
+                                                return fmt.Errorf("failed in parsing %q: %v", fName, err)
+                                        }
+                                        reflect.Append(f, reflect.ValueOf(fn))
+                                }
                         default:
                                 reflect.Append(f, reflect.ValueOf(fValue))
                 }
+                return nil
+        } else if k == reflect.Bool {
+                if torf, err = strconv.ParseBool(fValue); err != nil {
+                        return fmt.Errorf("failed in parsing %q: %v %q", fName, err, ft)
+                }
+                f.SetBool(torf)
                 return nil
         }
         return fmt.Errorf("don't know how to decode field %q %q", fName, k)

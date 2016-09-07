@@ -101,7 +101,7 @@ type Good struct {
         Deets GoodDeets
 }
 type GoodDeets struct {
-        Stock int
+        Stock bool
         Related []int `cap:"2"`
         Features []string `cap:"3"`
 }
@@ -112,12 +112,12 @@ func TestUnmarshalcsv(t *testing.T) {
                 expect interface{}
         }{
                 {
-                        input: `"0", "0.0", "10", "1", "12", "1002", "1003", "Boo", "Yeah", "Banjo"`,
-                        expect: Good{Id: 0, Price: 0.0, Vols: []int{10,1}, Deets: GoodDeets{ Stock: 12, Related: []int{1002, 1003}, Features: []string{"Boo","Yeah","Banjo"} }},
+                        input: `"0", "0.0", "10", "1", "true", "1002", "1003", "Boo", "Yeah", "Banjo"`,
+                        expect: Good{Id: 0, Price: 0.0, Vols: []int{10,1}, Deets: GoodDeets{ Stock: false, Related: []int{1002, 1003}, Features: []string{"Boo","Yeah","Banjo"} }},
                 },
                 {
-                        input: `"0", "0.0", "10", "1", "12", "1002", "1003", "Boo", "Yeah", "Banjo"`,
-                        expect: Good{Id: 0, Price: 0.0, Vols: []int{10,1}, Deets: GoodDeets{ Stock: 12, Related: []int{1002, 1003}, Features: []string{"Boo","Yeah","Banjo"} }},
+                        input: `"0", "0.0", "10", "1", "false", "1002", "1003", "Boo", "Yeah", "Banjo"`,
+                        expect: Good{Id: 0, Price: 0.0, Vols: []int{10,1}, Deets: GoodDeets{ Stock: true, Related: []int{1002, 1003}, Features: []string{"Boo","Yeah","Banjo"} }},
                 },
         }
         for _, test := range tests {
