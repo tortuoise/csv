@@ -162,6 +162,7 @@ func (dec *Decoder) DeepUnmarshalCSV(v interface{}) error {
 
 }
 
+// DeepUnmarshal recursively unmarshals csv into provided interface which must be a pointer. It first checks whether the number of csv values equals the DeepCount of the struct
 func DeepUnmarshal(v interface{}, record []string) error {
         var (
                 err error
@@ -226,6 +227,7 @@ func DeepUnmarshal(v interface{}, record []string) error {
         return nil //fmt.Errorf("Last i,j : %d,%d",i, j)
 }
 
+// Deepcount recursively counts the number of fields in a struct using a struct field tag on slices
 func DeepCount(v interface{}) (int, error) {
         count := 0
         typ := reflect.TypeOf(v).Elem()

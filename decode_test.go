@@ -124,7 +124,7 @@ func TestUnmarshalcsv(t *testing.T) {
                 dec := csv.NewDecoder(strings.NewReader(test.input))
                 get := reflect.New(reflect.TypeOf(test.expect)).Interface()
                 if err := dec.DeepUnmarshalCSV(get); err != nil || !reflect.DeepEqual(reflect.ValueOf(get).Elem().Interface(), test.expect) {
-                        t.Errorf("Expect %q unmarshal to %3v: %v", test.input, test.expect, get, err)
+                        t.Errorf("Expect %v unmarshals to %v: %v", test.expect, reflect.ValueOf(get).Elem().Interface(), err)
                 }
         }
 }
@@ -249,4 +249,24 @@ func BenchmarkLendingclubFile(b *testing.B) {
 		}
 	}
 	b.SetBytes(stat.Size())
+}
+
+func ExampleUnmarshalCSV() {
+        input := `"0", "0.0", "10", "1", "false", "1002", "1003", "Boo", "Yeah", "Banjo"
+                "1", "2.1", "11", "12", "true", "1002", "1005", "Boo", "Nay", "Banjo"`
+        expect := Good{}
+        dec := csv.NewDecoder(strings.NewReader(input))
+        get := reflect.New(reflect.TypeOf(expect)).Interface() // or get := Good{}
+        for {
+                err := dec.DeepUnmarshalCSV(get)
+                if err == io.EOF {
+                        break
+                } else if err != nil  {
+                        fmt.Printf("error:%v\n", err)
+                }
+                fmt.Println(get)
+        }
+        //Output:
+        //&{0 0 [10 1] {false [1002 1003] [Boo Yeah Banjo]}}
+        //&{1 2.1 [11 12] {true [1002 1005] [Boo Nay Banjo]}}
 }
