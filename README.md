@@ -1,6 +1,6 @@
 # csv
 
-[![GoDoc](https:/godoc.org/github.com/tortuoise/csv)](https://godoc.org/github.com/tortuoise/csv)
+[![GoDoc](https:/godoc.org/github.com/tortuoise/csv?status.svg)](https://godoc.org/github.com/tortuoise/csv)
 
 `csv` allows you unmarshal and marshal (TBD) between csv (Comma
 Separated Values) text and Golang struct.
